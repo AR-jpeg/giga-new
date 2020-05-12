@@ -1,25 +1,34 @@
 """Main File."""
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from datetime import datetime
 import random
-
+import os
 
 app = Flask(__name__)
-
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
+app.secret_key = os.urandom(24)
+
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
 class User(db.Model): # work in progress...
     """Base class for users."""
 
+    email = db.Column(db.String(120), nullable=False)
     username = db.Column(db.String(80), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
     hashed_password = db.Column(db.String(400))
+    user_id = db.Column(db.String(1000), unique=True)
     primary_id = db.Column(db.Integer, primary_key=True)
-    id = db.Column(db.String(1000), unique=True)
+
+    def __init__(self, username, email, hashed_password, user_id):
+        """__init__ for User class."""
+        super().__init__()
+        self.email = email
+        self.username = username
+        self.hashed_password = hashed_password
+        self.user_id = user_id
 
     def __repr__(self):
         """Represent the given user."""
@@ -41,6 +50,7 @@ class BlogPost(db.Model):
         """REPR thing."""
         return 'Blog Post ' + str(self.id)
 
+
 @app.route('/')
 def index():
     """Index route (ex) yourdomain.extension/."""
@@ -51,6 +61,10 @@ def error(e):
     """Handle errors."""
     return render_template('404.html'), 404
 
+
+
+
+## Routes
 @app.route('/signup/new', methods=['POST'])
 def new_signup():
     """Signup."""
@@ -61,34 +75,38 @@ def new_signup():
 
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
-        new_user = User(username=username, hashed_password=hashed_password, email=email, id=hex(random.randint(100_100, 999_999)))
+        new_user = User(username=username, hashed_password=hashed_password, email=email, user_id=hex(random.randint(100_100, 999_999)))
         print(type(new_user.hashed_password))
 
         db.session.add(new_user)
         db.session.commit()
 
-        return redirect(f'/user/{new_user.id}')
+        return flash('Done!')
     else:
         return redirect('/signup')
 
-@app.route('/signup')
-def signup():
-    """Render template."""
-    return render_template('signup.html')
+@app.route('/posts/edit/<int:id>', methods=['GET', 'POST'])
+def edit(id):
+    """Edit the current BlogPost."""
+    post = BlogPost.query.get_or_404(id)
+    if request.method == 'POST':
+        post.title = request.form['title']
+        post.content = request.form['content']
+        post.author = request.form['author']    
+        db.session.commit()
+        return redirect('/posts')
+        
+    else:
+        return render_template('edit.html/', post=post)
 
-@app.route('/posts', methods=['GET', 'POST'])
-def posts():
-    """Render all posts."""
-    all_posts = BlogPost.query.all()
-    return render_template('posts.html', posts=all_posts)
 
-@app.route('/user/<id>')
-def user(id_number, is_logged_in = False):
-    """Show a user."""
-    try:
-        user = User.query.all()
-    except:
-        pass
+@app.route('/posts/view/<int:id>')
+def see_post(id):
+    """See any post in 'scope'."""
+    post = BlogPost.query.get_or_404(id)
+
+    return render_template('/view.html', post=post)
+
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
@@ -108,26 +126,19 @@ def delete(id):
     db.session.commit()
     return redirect('/posts')
 
-@app.route('/posts/edit/<int:id>', methods=['GET', 'POST'])
-def edit(id):
-    """Edit the current BlogPost."""
-    post = BlogPost.query.get_or_404(id)
-    if request.method == 'POST':
-        post.title = request.form['title']
-        post.content = request.form['content']
-        post.author = request.form['author']    
-        db.session.commit()
-        return redirect('/posts')
-        
-    else:
-        return render_template('edit.html/', post=post)
+@app.route('/posts', methods=['GET', 'POST'])
+def posts():
+    """Render all posts."""
+    all_posts = BlogPost.query.all()
+    return render_template('posts.html', posts=all_posts)
 
-@app.route('/posts/view/<int:id>')
-def see_post(id):
-    """See any post in 'scope'."""
-    post = BlogPost.query.get_or_404(id)
-
-    return render_template('/view.html', post=post)
+@app.route('/user/<id>')
+def user(id_number, is_logged_in = False):
+    """Show a user."""
+    try:
+        user = User.query.all()
+    except:
+        pass
 
 @app.route('/posts/new', methods=['GET', 'POST'])
 def new_post():
@@ -143,6 +154,15 @@ def new_post():
     else:
         return render_template('new_post.html')
 
+
+@app.route('/signup')
+def signup():
+    """Render template."""
+    return render_template('signup.html')
+
+
+
+# Other
 if __name__ == '__main__':
     db.create_all()
     app.run(debug=True)
