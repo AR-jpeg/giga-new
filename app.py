@@ -8,6 +8,7 @@ import os
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.secret_key = os.urandom(24)
 
 db = SQLAlchemy(app)
@@ -51,6 +52,11 @@ class BlogPost(db.Model):
         return 'Blog Post ' + str(self.id)
 
 
+
+
+
+
+## Routes
 @app.route('/')
 def index():
     """Index route (ex) yourdomain.extension/."""
@@ -61,10 +67,6 @@ def error(e):
     """Handle errors."""
     return render_template('404.html'), 404
 
-
-
-
-## Routes
 @app.route('/signup/new', methods=['POST'])
 def new_signup():
     """Signup."""
@@ -80,10 +82,8 @@ def new_signup():
 
         db.session.add(new_user)
         db.session.commit()
-
-        return flash('Done!')
-    else:
-        return redirect('/signup')
+:
+        return redirect(up')
 
 @app.route('/posts/edit/<int:id>', methods=['GET', 'POST'])
 def edit(id):
@@ -97,7 +97,7 @@ def edit(id):
         return redirect('/posts')
         
     else:
-        return render_template('edit.html/', post=post)
+        return render_temlate('edit.html/', post=post)
 
 
 @app.route('/posts/view/<int:id>')
