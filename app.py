@@ -1,5 +1,6 @@
 """Main File."""
 from flask import Flask, render_template, request, redirect, flash
+from sqlalchemy.types import Boolean, String, Integer
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from datetime import datetime
@@ -17,44 +18,52 @@ bcrypt = Bcrypt(app)
 class User(db.Model): # work in progress...
     """Base class for users."""
 
-    email = db.Column(db.String(120), nullable=False)
-    username = db.Column(db.String(80), nullable=False)
-    hashed_password = db.Column(db.String(400))
-    user_id = db.Column(db.String(1000), unique=True)
-    primary_id = db.Column(db.Integer, primary_key=True)
+    __tablename__ = "users"
 
-    def __init__(self, username, email, hashed_password, user_id):
+    email = db.Column(String(120), nullable=False)
+    is_signed_in = db.Column(String(1)) # Either T/F
+    username = db.Column(String(80), nullable=False)
+    hashed_password = db.Column(String(400))
+    user_id = db.Column(String(1000))
+    primary_id = db.Column(Integer, primary_key=True)
+    all_posts = db.Column(String(500_000_000), default='')
+
+    def __init__(self, email, is_signed_in, username, hashed_password, user_id):
         """__init__ for User class."""
         super().__init__()
         self.email = email
         self.username = username
         self.hashed_password = hashed_password
         self.user_id = user_id
+        self.is_signed_in = is_signed_in
 
     def __repr__(self):
         """Represent the given user."""
         return f'<User {self.username}>'
 
+    @property
+    def ratings(self):
+        """Thing."""
+        return [float(x) for x in self.all_posts.split(';')]
+
+    @ratings.setter
+    def ratings(self, value):
+        """Thing."""
+        self.posts += ';%s' % value
 
 class BlogPost(db.Model):
-    """Base data base model."""
-
-    date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
-    author = db.Column(db.String(30), nullable=False, default="N/A")
-    title = db.Column(db.String(100), nullable=False)
+    """Base class for BPs."""
+    
     id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
     content = db.Column(db.Text, nullable=False)
-
-    date_posted_fancy = "PLACEHOLDER" 
+    author = db.Column(db.String(20), nullable=False, default='N/A')
+    date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     def __repr__(self):
-        """REPR thing."""
-        return 'Blog Post ' + str(self.id)
+        return 'Blog post ' + str(self.id)
 
-
-
-
-
+db.session.add(BlogPost(author='AR', title='none', content='lulz'))
 
 ## Routes
 @app.route('/')
@@ -82,8 +91,8 @@ def new_signup():
 
         db.session.add(new_user)
         db.session.commit()
-:
-        return redirect(up')
+
+        return redirect('/signup')
 
 @app.route('/posts/edit/<int:id>', methods=['GET', 'POST'])
 def edit(id):
@@ -97,8 +106,7 @@ def edit(id):
         return redirect('/posts')
         
     else:
-        return render_temlate('edit.html/', post=post)
-
+        return render_temlate('edit.html', post=post)
 
 @app.route('/posts/view/<int:id>')
 def see_post(id):
@@ -106,7 +114,6 @@ def see_post(id):
     post = BlogPost.query.get_or_404(id)
 
     return render_template('/view.html', post=post)
-
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
@@ -128,21 +135,29 @@ def delete(id):
 
 @app.route('/posts', methods=['GET', 'POST'])
 def posts():
-    """Render all posts."""
-    all_posts = BlogPost.query.all()
-    return render_template('posts.html', posts=all_posts)
+    """Thingy."""
+    if request.method == 'POST':
+        post_title = request.form['title']
+        post_content = request.form['content']
+        post_author = request.form['author']
+        new_post = BlogPost(title=post_title, content=post_content, author=post_author)
+        db.session.add(new_post)
+        db.session.commit()
+        return redirect('/posts')
+    else:
+        all_posts = BlogPost.query.order_by(BlogPost.date_posted).all()
+        return render_template('posts.html', posts=all_posts)
 
 @app.route('/user/<id>')
-def user(id_number, is_logged_in = False):
+def user(id_number):
     """Show a user."""
-    try:
-        user = User.query.all()
-    except:
-        pass
+    user = BlogPost.query.get_or_404(id_number)
+    if user:
+        return render_template('view_person.html', user=user, posts=user.all_posts)
 
 @app.route('/posts/new', methods=['GET', 'POST'])
 def new_post():
-    """Create a new post."""
+    """Make a new post."""
     if request.method == 'POST':
         post_title = request.form['title']
         post_author = request.form['author']
@@ -164,5 +179,4 @@ def signup():
 
 # Other
 if __name__ == '__main__':
-    db.create_all()
     app.run(debug=True)
