@@ -1,9 +1,11 @@
 """Main File."""
-from flask import Flask, render_template, request, redirect, flash
-from sqlalchemy.types import Boolean, String, Integer
+from flask import Flask, request, redirect, render_template, flash
+from sqlalchemy.types import String, Integer
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from datetime import datetime
+from threading import Thread
+from os import name
 import random
 import os
 
@@ -63,8 +65,6 @@ class BlogPost(db.Model):
     def __repr__(self):
         return 'Blog post ' + str(self.id)
 
-db.session.add(BlogPost(author='AR', title='none', content='lulz'))
-
 ## Routes
 @app.route('/')
 def index():
@@ -106,7 +106,7 @@ def edit(id):
         return redirect('/posts')
         
     else:
-        return render_temlate('edit.html', post=post)
+        return render_template('edit.html', post=post)
 
 @app.route('/posts/view/<int:id>')
 def see_post(id):
@@ -122,6 +122,14 @@ def login():
         username = request.form['username']
         password = request.form['password']
         email = request.form['email']
+
+        user = User.query.filter(username=username, email=email)
+        if user:
+            if bcrypt.check_password_hash(password, password):
+                user.is_signed_in = True
+                return redirect(f'/user/{user.user_id}')
+            else:
+                return flash('Oh No! Your account was not found!')
     else:
         return render_template('login.html')
 
@@ -174,9 +182,19 @@ def new_post():
 def signup():
     """Render template."""
     return render_template('signup.html')
+ 
+def run():
+    '''For my own sanity.'''
+    # for windows 
+    if name == 'nt': 
+        app.run(host='127.0.0.1', port = 8080, debug=True)
+    # for mac and linux(here, os.name is 'posix')
+    else: 
+        app.run('0.0.0.0', port=8080, debug=False)
 
+def keep_alive():
+    server = Thread(target=run)
+    server.start()
 
-
-# Other
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port = 8080, debug=True)
+    keep_alive()
