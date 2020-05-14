@@ -184,7 +184,7 @@ def signup():
     return render_template('signup.html')
  
 def run():
-    '''For my own sanity.'''
+    """For my own sanity."""
     # for windows 
     if name == 'nt': 
         app.run(host='127.0.0.1', port = 8080, debug=True)
@@ -197,4 +197,4 @@ def keep_alive():
     server.start()
 
 if __name__ == '__main__':
-    keep_alive()
+    run()
