@@ -1,5 +1,5 @@
 """Main File."""
-from flask import Flask, request, redirect, render_template, flash
+from flask import Flask, request, redirect, render_template, flash, url_for
 from sqlalchemy.types import String, Integer
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
@@ -74,7 +74,10 @@ class BlogPost(db.Model):
 @app.route('/')
 def index():
     """Index route (ex) yourdomain.extension/."""
-    return render_template('index.html')
+    with open('signedin') as f:
+        if not len(f.read()): # If no has signedin
+            return render_template('index.html', signedin=True)
+            
 
 @app.errorhandler(404)
 def error(e):
@@ -149,24 +152,18 @@ def delete(id):
 @app.route('/posts', methods=['GET', 'POST'])
 def posts():
     """Thingy."""
-    if request.method == 'POST':
-        post_title = request.form['title']
-        post_content = request.form['content']
-        post_author = request.form['author']
-        new_post = BlogPost(title=post_title, content=post_content, author=post_author)
-        db.session.add(new_post)
-        db.session.commit()
-        return redirect('/posts')
-    else:
-        all_posts = BlogPost.query.order_by(BlogPost.date_posted).all()
-        return render_template('posts.html', posts=all_posts)
+    all_posts = reversed(BlogPost.query.order_by(BlogPost.date_posted).all())
+    return render_template('posts.html', posts=all_posts)
 
 @app.route('/user/<id>')
 def user(id_number):
     """Show a user."""
-    user = BlogPost.query.get_or_404(id_number)
-    if user:
-        return render_template('view_person.html', user=user, posts=user.all_posts)
+    try:
+        user = User.query.filter(user_id=id)
+        if user:
+            return render_template('view_person.html', user=user, posts=user.all_posts)
+    except Exception as e:
+        return redirect('/404')
 
 @app.route('/posts/new', methods=['GET', 'POST'])
 def new_post():
@@ -187,7 +184,9 @@ def new_post():
 def signup():
     """Render template."""
     return render_template('signup.html')
- 
+
+
+
 def run():
     """For my own sanity."""
     # for windows 

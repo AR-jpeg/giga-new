@@ -1,0 +1,7 @@
+"""Alert on the console a warning."""
+
+from browser import console
+
+console.clear()
+
+console.log("%c %c Wait! Before you type in anything in the console, please make sure that you understand it.", "color: red", "font-size:50px")
