@@ -74,15 +74,18 @@ class BlogPost(db.Model):
 @app.route('/')
 def index():
     """Index route (ex) yourdomain.extension/."""
-    with open('signedin') as f:
-        if not len(f.read()): # If no has signedin
-            return render_template('index.html', signedin=True)
+    return render_template('index.html', signedin=False)
             
 
 @app.errorhandler(404)
 def error(e):
     """Handle errors."""
     return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def error(e):
+    """Handle errors."""
+    return "..."
 
 @app.route('/signup/new', methods=['POST'])
 def new_signup():
