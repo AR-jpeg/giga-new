@@ -1,8 +1,9 @@
 """The redo."""
+from waitress import serve
 from src import app
-import sys
+import socket
 
-try:
-    app.run(sys.argv[1], int(sys.argv[2]), True)
-except:
-    app.run(debug=True)
+hostname = socket.gethostname()
+ip_address = socket.gethostbyname(hostname)
+
+serve(app, host=ip_address, port=80)
