@@ -1,5 +1,19 @@
 {
-    "python.linting.pydocstyleEnabled": true,
-    "python.linting.enabled": true,
-    "python.pythonPath": "C:\\Users\\Owner\\AppData\\Local\\Programs\\Python\\Python38-32\\python.exe"
+  "python.linting.pydocstyleEnabled": true,
+  "python.linting.enabled": true,
+  "python.pythonPath": "C:\\Users\\svshy\\AppData\\Local\\Programs\\Python\\Python38-32\\python.exe",
+  "emmet.includeLanguages": {
+    "django-html": "html"
+  },
+  "files.exclude": {
+    "**/__pycache__": true,
+    ".replit": true,
+    "LICENSE": true,
+    "poetry.lock": true,
+    "pyproject.toml": true,
+    "SECURITY.md": true,
+    "old.py": true,
+    ".py": true
+    // "**/site.db": true
+  }
 }
