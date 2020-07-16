@@ -13,7 +13,5 @@
     "pyproject.toml": true,
     "SECURITY.md": true,
     "old.py": true,
-    ".py": true
-    // "**/site.db": true
   }
 }

@@ -1,8 +1,11 @@
 """All the models."""
-from itsdangerous import JSONWebSignatureSerializer as Serializer
-from . import db, login_manager, app
-from flask_login import UserMixin
 from datetime import datetime
+
+from flask import current_app as app
+from flask_login import UserMixin
+from itsdangerous import JSONWebSignatureSerializer as Serializer
+
+from src import db, login_manager
 
 
 @login_manager.user_loader
@@ -26,23 +29,20 @@ class User(db.Model, UserMixin):
         """Format the user to be printed."""
         return f"User('{self.username}', '{self.email}', '{self.image_file}')"
 
-    def get_reset_token(self, expiration_seconds=1800):
-        """Return a reset token."""
-        s = Serializer(app.config['SECRET_KEY'], expiration_seconds)
-        return s.dumps({
-            'user_id': self.id
-        }).decode('utf-8')
+    def get_reset_token(self, expires_sec=1800):
+        """Get a reset token."""
+        s = Serializer(app.config['SECRET_KEY'])
+        return s.dumps({'user_id': self.id}).decode('utf-8')
 
     @staticmethod
     def verify_reset_token(token):
-        """Verify a token."""
+        """Verify a token is valid."""
         s = Serializer(app.config['SECRET_KEY'])
-
         try:
             user_id = s.loads(token)['user_id']
-            return User.query.get(user_id)
         except:
             return None
+        return User.query.get(user_id)
 
 
 class Post(db.Model):

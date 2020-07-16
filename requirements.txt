@@ -18,3 +18,4 @@ Werkzeug==1.0.1
 wtf==0.1
 WTForm==1.0
 WTForms==2.3.1
+flask-mail
