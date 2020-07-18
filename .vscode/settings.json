@@ -1,7 +1,7 @@
 {
   "python.linting.pydocstyleEnabled": true,
   "python.linting.enabled": true,
-  "python.pythonPath": "C:\\Users\\svshy\\AppData\\Local\\Programs\\Python\\Python38-32\\python.exe",
+  "python.pythonPath": "env\\Scripts\\python.exe",
   "emmet.includeLanguages": {
     "django-html": "html"
   },
@@ -12,7 +12,7 @@
     "poetry.lock": true,
     "pyproject.toml": true,
     "SECURITY.md": true,
-    "old.py": true,
+    "old.py": true
   },
   "python.linting.pylintEnabled": false
 }
