@@ -1,7 +1,7 @@
 """All the models."""
 from datetime import datetime
 
-from flask import current_app as app
+from src import app
 from flask_login import UserMixin
 from itsdangerous import JSONWebSignatureSerializer as Serializer
 

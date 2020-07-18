@@ -6,28 +6,25 @@ from flask_login import LoginManager
 from flask_mail import Mail
 from src.config import Config
 
+app = Flask(__name__)
+app.config.from_object(Config)
 
-db = SQLAlchemy()
-bcrypt = Bcrypt()
-login_manager = LoginManager()
+db = SQLAlchemy(app)
+bcrypt = Bcrypt(app)
+login_manager = LoginManager(app)
 login_manager.login_view = 'users.login'
 login_manager.login_message_category = 'info'
-mail = Mail()
+mail = Mail(app)
 
 
 def create_app(config_class=Config):
     """Create the app."""
-    app = Flask(__name__)
-    app.config.from_object(Config)
+    from src import models
 
-    db.init_app(app)
-    bcrypt.init_app(app)
-    login_manager.init_app(app)
-    mail.init_app(app)
-
-    from src.users.routes import users
-    from src.posts.routes import posts
-    from src.main.routes import main
+    # Add the blueprints
+    from src.routes.users.routes import users
+    from src.routes.posts.routes import posts
+    from src.routes.main.routes import main
 
     app.register_blueprint(users)
     app.register_blueprint(posts)

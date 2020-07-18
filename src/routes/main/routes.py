@@ -1,6 +1,6 @@
 """General routes go in this file."""
 from flask import render_template, request, Blueprint
-from ..models import Post
+from src.models import Post
 
 main = Blueprint('main', __name__)
 

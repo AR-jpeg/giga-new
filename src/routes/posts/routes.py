@@ -1,10 +1,12 @@
 """Routes for post go here."""
 
-from flask import (render_template, url_for, flash,
-                   redirect, request, abort, Blueprint)
+from flask import (
+    Blueprint, abort, flash, redirect, render_template, request, url_for)
 from flask_login import current_user, login_required
+
 from src import db
-from ..models import Post
+from src.models import Post
+
 from .forms import PostForm
 
 posts = Blueprint('posts', __name__)
