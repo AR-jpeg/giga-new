@@ -1,5 +1,5 @@
 {
-  "python.linting.pydocstyleEnabled": true,
+  "python.linting.pydocstyleEnabled": false,
   "python.linting.enabled": true,
   "python.pythonPath": "env\\Scripts\\python.exe",
   "emmet.includeLanguages": {
@@ -7,12 +7,14 @@
   },
   "files.exclude": {
     "**/__pycache__": true,
-    ".replit": true,
-    "LICENSE": true,
-    "poetry.lock": true,
-    "pyproject.toml": true,
-    "SECURITY.md": true,
-    "old.py": true
+    // ".replit": true,
+    // "LICENSE": true,
+    // "poetry.lock": true,
+    // "pyproject.toml": true,
+    // "SECURITY.md": true,
+    // "old.py": true
   },
-  "python.linting.pylintEnabled": false
+  "python.linting.pylintEnabled": false,
+  "python.linting.flake8Enabled": false,
+  "python.linting.banditEnabled": true
 }
