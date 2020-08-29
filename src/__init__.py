@@ -17,7 +17,7 @@ login_manager.login_message_category = 'info'
 mail = Mail(app)
 
 
-def create_app(config_class=Config):
+def create_app():
     """Create the app."""
     from src import models
 

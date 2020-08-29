@@ -4,3 +4,5 @@ pyproject.lock
 .vscode
 **/*.db
 **/.env
+
+src/static/profile_pics/**.*

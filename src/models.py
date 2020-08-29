@@ -57,4 +57,4 @@ class Post(db.Model):
 
     def __repr__(self):
         """Format the post to be printed."""
-        return f"Post('{self.title}', '{self.date_posted}')"
+        return f"<Post('{self.title}', '{self.date_posted}'>"
